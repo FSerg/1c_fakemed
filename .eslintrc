@@ -1,0 +1,13 @@
+{
+  "env": {
+    "browser": true
+  },
+  "extends": "airbnb",
+  "parser": "babel-eslint",
+  "rules": {
+    "comma-dangle": ["error", "never"],
+    "arrow-parens": ["error", "as-needed"],
+    "function-paren-newline": ["error", "consistent"],
+    # "no-console": ["error", { allow: ["warn", "error"] }]
+  },
+}
