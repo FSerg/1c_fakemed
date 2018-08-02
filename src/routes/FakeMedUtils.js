@@ -5,12 +5,13 @@ import startOfYesterday from 'date-fns/start_of_yesterday';
 
 import FakeMed from '../models/FakeMed';
 import config from '../config/config';
+import log from '../Logging';
 
 const GetYesterday = () => dateFormat(startOfYesterday(), 'DD.MM.YYYY');
 
 const errorMessage = (filed, filedName) => {
   const errorMessageStr = `Filed: [${filedName}] can't be empty!`;
-  console.error(errorMessageStr);
+  log.error(errorMessageStr);
   return errorMessageStr;
 };
 
@@ -59,11 +60,11 @@ const GetFakeMeds = async (data1, data2) => {
   await axios
     .post(config.urlAjax, form, { headers: form.getHeaders() })
     .then(response => {
-      console.log('Data about fake meds recieved successfully!');
+      log.info('Data about fake meds recieved successfully!');
       result = response.data;
     })
     .catch(error => {
-      console.error(error);
+      log.error(error);
     });
   return result;
 };
@@ -72,7 +73,7 @@ const UpdateFakeMeds = async (
   data1 = GetYesterday(),
   data2 = GetYesterday()
 ) => {
-  console.log(`Update fake meds: ${data1} - ${data2}`);
+  log.info(`Update fake meds: ${data1} - ${data2}`);
   // try get data
   const requestedResult = await GetFakeMeds(data1, data2);
 

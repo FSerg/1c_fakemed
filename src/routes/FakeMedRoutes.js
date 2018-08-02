@@ -2,12 +2,13 @@ import express from 'express';
 import bearer from '../middlewares/bearer';
 import FakeMed from '../models/FakeMed';
 import utils from './FakeMedUtils';
+import log from '../Logging';
 
 const router = express.Router();
 
 router.get('/update', bearer, async (req, res) => {
-  console.log('GET manual update fakemed!');
-  console.log(req.query);
+  log.info('GET manual update fakemed!');
+  log.info(req.query);
 
   if (req.query === undefined) {
     return res.status(400).send({
@@ -26,22 +27,18 @@ router.get('/update', bearer, async (req, res) => {
   }
 
   try {
-    const saveResult = await utils.UpdateFakeMeds(
-      req.query.date_begin,
-      req.query.date_end
-    );
-    // return res.status(200).send({ result: saveResult });
+    await utils.UpdateFakeMeds(req.query.date_begin, req.query.date_end);
     return res.status(200).send({ result: 'OK' });
   } catch (err) {
     const errorMessage = `Error to update FakeMeds: ${err}`;
-    console.error(errorMessage);
+    log.error(errorMessage);
     return res.status(400).send({ result: errorMessage });
   }
 });
 
 router.get('/', bearer, (req, res) => {
-  console.log('GET list of fakemeds!');
-  console.log(req.query);
+  log.info('GET list of fakemeds!');
+  log.info(req.query);
 
   if (req.query === undefined) {
     return res
@@ -55,19 +52,17 @@ router.get('/', bearer, (req, res) => {
     return res.status(400).send({ result: error1 });
   }
 
-  FakeMed.find(
+  return FakeMed.find(
     { updated_drugstores: { $ne: drugstore } },
     { updated_drugstores: 0 },
     async (err, results) => {
       if (err) {
         const errorMessage = 'Error to query fakemeds!';
-        console.error(errorMessage);
+        log.error(errorMessage);
         return res.status(400).send({ result: errorMessage });
       }
-      const updateResults = await FakeMed.update(
-        {
-          updated_drugstores: { $ne: drugstore }
-        },
+      await FakeMed.update(
+        { updated_drugstores: { $ne: drugstore } },
         { $push: { updated_drugstores: drugstore } },
         { multi: true }
       );
