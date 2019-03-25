@@ -13,6 +13,7 @@ mongoose.connect(config.mongoURI, { useMongoClient: true }, err => {
   if (err) log.error(err);
   else {
     console.log("MongoDB connected!");
+    //123
 
     // cron job to update fakemeds
     cron.schedule(config.cronSchedule, () => {
