@@ -1,15 +1,19 @@
 import axios from "axios";
 import FormData from "form-data";
+/*
 import dateFormat from "date-fns/format";
 import startOfYesterday from "date-fns/start_of_yesterday";
 import subDays from "date-fns/sub_days";
+*/
 
 import FakeMed from "../models/FakeMed";
 import config from "../config/config";
 import log from "../Logging";
 
+/*
 const GetYesterday = () => dateFormat(startOfYesterday(), "DD.MM.YYYY");
 const GetSubDays = () => dateFormat(subDays(new Date(), 10), "DD.MM.YYYY");
+*/
 
 const errorMessage = (filed, filedName) => {
   const errorMessageStr = `Filed: [${filedName}] can't be empty!`;
@@ -72,39 +76,10 @@ const GetFakeMeds = async (data1, data2) => {
 };
 
 const UpdateFakeMeds = async (
-  data1 = GetYesterday(),
-  data2 = GetYesterday()
-) => {
-  log.info(`Update fake meds: ${data1} - ${data2}`);
-  // try get data
-  const requestedResult = await GetFakeMeds(data1, data2);
-
-  // prepare data
-  const convertedResult = ConvertFakeMeds(requestedResult.data);
-
-  // save data
-  const saveResult = await Promise.all(
-    convertedResult.map(async item => {
-      const newDoc = await FakeMed.findOneAndUpdate(
-        {
-          name: item.name,
-          packaging: item.packaging,
-          series: item.series,
-          producer: item.producer
-        },
-        item,
-        { upsert: true, new: true }
-      );
-      return newDoc;
-    })
-  );
-
-  return saveResult;
-};
-
-const UpdateFakeMedsSubDays = async (
-  data1 = GetSubDays(),
-  data2 = GetYesterday()
+  //data1 = GetYesterday(),
+  //data2 = GetYesterday()
+  data1,
+  data2
 ) => {
   log.info(`Update fake meds: ${data1} - ${data2}`);
   // try get data
@@ -136,6 +111,5 @@ const UpdateFakeMedsSubDays = async (
 module.exports = {
   errorMessage,
   checkField,
-  UpdateFakeMeds,
-  UpdateFakeMedsSubDays
+  UpdateFakeMeds
 };

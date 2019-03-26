@@ -8,6 +8,14 @@ import FakeMedRoutes from "./routes/FakeMedRoutes";
 import FakeMedUtils from "./routes/FakeMedUtils";
 import log from "./Logging";
 
+import dateFormat from "date-fns/format";
+import startOfYesterday from "date-fns/start_of_yesterday";
+import subDays from "date-fns/sub_days";
+
+const GetYesterday = () => dateFormat(startOfYesterday(), "DD.MM.YYYY");
+const GetSubDays = () => dateFormat(subDays(new Date(), 10), "DD.MM.YYYY");
+const GetNow = () => dateFormat(new Date(), "DD.MM.YYYY");
+
 mongoose.Promise = global.Promise;
 mongoose.connect(config.mongoURI, { useMongoClient: true }, err => {
   if (err) log.error(err);
@@ -17,13 +25,13 @@ mongoose.connect(config.mongoURI, { useMongoClient: true }, err => {
     // cron job to update fakemeds
     cron.schedule(config.cronSchedule, () => {
       log.info(`Start update FakeMeds: ${Date()}`);
-      FakeMedUtils.UpdateFakeMeds();
+      FakeMedUtils.UpdateFakeMeds(GetYesterday(), GetYesterday());
     });
 
     // cron job to update fakemeds sub days (10 days)
     cron.schedule(config.cronScheduleSubDays, () => {
       log.info(`Start update FakeMeds (sub days): ${Date()}`);
-      FakeMedUtils.UpdateFakeMedsSubDays();
+      FakeMedUtils.UpdateFakeMeds(GetSubDays(), GetNow());
     });
   }
 });
