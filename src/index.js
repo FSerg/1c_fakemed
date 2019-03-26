@@ -13,12 +13,17 @@ mongoose.connect(config.mongoURI, { useMongoClient: true }, err => {
   if (err) log.error(err);
   else {
     console.log("MongoDB connected!");
-    //123
 
     // cron job to update fakemeds
     cron.schedule(config.cronSchedule, () => {
       log.info(`Start update FakeMeds: ${Date()}`);
       FakeMedUtils.UpdateFakeMeds();
+    });
+
+    // cron job to update fakemeds sub days (10 days)
+    cron.schedule(config.cronScheduleSubDays, () => {
+      log.info(`Start update FakeMeds (sub days): ${Date()}`);
+      FakeMedUtils.UpdateFakeMedsSubDays();
     });
   }
 });

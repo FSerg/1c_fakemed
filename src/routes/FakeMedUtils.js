@@ -1,13 +1,15 @@
-import axios from 'axios';
-import FormData from 'form-data';
-import dateFormat from 'date-fns/format';
-import startOfYesterday from 'date-fns/start_of_yesterday';
+import axios from "axios";
+import FormData from "form-data";
+import dateFormat from "date-fns/format";
+import startOfYesterday from "date-fns/start_of_yesterday";
+import subDays from "date-fns/sub_days";
 
-import FakeMed from '../models/FakeMed';
-import config from '../config/config';
-import log from '../Logging';
+import FakeMed from "../models/FakeMed";
+import config from "../config/config";
+import log from "../Logging";
 
-const GetYesterday = () => dateFormat(startOfYesterday(), 'DD.MM.YYYY');
+const GetYesterday = () => dateFormat(startOfYesterday(), "DD.MM.YYYY");
+const GetSubDays = () => dateFormat(subDays(new Date(), 10), "DD.MM.YYYY");
 
 const errorMessage = (filed, filedName) => {
   const errorMessageStr = `Filed: [${filedName}] can't be empty!`;
@@ -28,7 +30,7 @@ const GetLink = str => {
   if (match) {
     return `${config.urlLetter}${match[1]}`;
   }
-  return '';
+  return "";
 };
 
 const ConvertFakeMeds = data => {
@@ -53,14 +55,14 @@ const GetFakeMeds = async (data1, data2) => {
   let result = { recordsTotal: 0, data: [] };
 
   const form = new FormData();
-  form.append('length', '10000');
-  form.append('let_from', data1);
-  form.append('let_to', data2);
+  form.append("length", "10000");
+  form.append("let_from", data1);
+  form.append("let_to", data2);
 
   await axios
     .post(config.urlAjax, form, { headers: form.getHeaders() })
     .then(response => {
-      log.info('Data about fake meds recieved successfully!');
+      log.info("Data about fake meds recieved successfully!");
       result = response.data;
     })
     .catch(error => {
@@ -100,8 +102,40 @@ const UpdateFakeMeds = async (
   return saveResult;
 };
 
+const UpdateFakeMedsSubDays = async (
+  data1 = GetSubDays(),
+  data2 = GetYesterday()
+) => {
+  log.info(`Update fake meds: ${data1} - ${data2}`);
+  // try get data
+  const requestedResult = await GetFakeMeds(data1, data2);
+
+  // prepare data
+  const convertedResult = ConvertFakeMeds(requestedResult.data);
+
+  // save data
+  const saveResult = await Promise.all(
+    convertedResult.map(async item => {
+      const newDoc = await FakeMed.findOneAndUpdate(
+        {
+          name: item.name,
+          packaging: item.packaging,
+          series: item.series,
+          producer: item.producer
+        },
+        item,
+        { upsert: true, new: true }
+      );
+      return newDoc;
+    })
+  );
+
+  return saveResult;
+};
+
 module.exports = {
   errorMessage,
   checkField,
-  UpdateFakeMeds
+  UpdateFakeMeds,
+  UpdateFakeMedsSubDays
 };
