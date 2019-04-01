@@ -5,6 +5,6 @@ module.exports = {
   urlLetter: process.env.URL_LETTER,
   urlAjax: process.env.URL_AJAX,
   cronSchedule: process.env.CRON_SCHEDULE || "0 1 * * *",
-  cronScheduleSubDays: process.env.CRON_SCHEDULE_SubDays || "0 1 * * *",
+  cronScheduleSubDays: process.env.CRON_SCHEDULE_SUBDAYS || "0 1 * * *",
   logLevel: process.env.LOG_LEVEL || "info"
 };
