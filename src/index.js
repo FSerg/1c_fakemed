@@ -1,26 +1,25 @@
-import "babel-polyfill";
-import express from "express";
-import mongoose from "mongoose";
-import bodyParser from "body-parser";
-import cron from "node-cron";
-import config from "./config/config";
-import FakeMedRoutes from "./routes/FakeMedRoutes";
-import FakeMedUtils from "./routes/FakeMedUtils";
-import log from "./Logging";
+import 'babel-polyfill';
+import express from 'express';
+import mongoose from 'mongoose';
+import bodyParser from 'body-parser';
+import cron from 'node-cron';
+import dateFormat from 'date-fns/format';
+import startOfYesterday from 'date-fns/start_of_yesterday';
+import subDays from 'date-fns/sub_days';
+import config from './config/config';
+import FakeMedRoutes from './routes/FakeMedRoutes';
+import FakeMedUtils from './routes/FakeMedUtils';
+import log from './Logging';
 
-import dateFormat from "date-fns/format";
-import startOfYesterday from "date-fns/start_of_yesterday";
-import subDays from "date-fns/sub_days";
-
-const GetYesterday = () => dateFormat(startOfYesterday(), "DD.MM.YYYY");
-const GetSubDays = () => dateFormat(subDays(new Date(), 10), "DD.MM.YYYY");
-const GetNow = () => dateFormat(new Date(), "DD.MM.YYYY");
+const GetYesterday = () => dateFormat(startOfYesterday(), 'DD.MM.YYYY');
+const GetSubDays = () => dateFormat(subDays(new Date(), 10), 'DD.MM.YYYY');
+const GetNow = () => dateFormat(new Date(), 'DD.MM.YYYY');
 
 mongoose.Promise = global.Promise;
 mongoose.connect(config.mongoURI, { useMongoClient: true }, err => {
   if (err) log.error(err);
   else {
-    console.log("MongoDB connected!");
+    console.log('MongoDB connected!');
 
     // cron job to update fakemeds
     cron.schedule(config.cronSchedule, () => {
@@ -37,15 +36,15 @@ mongoose.connect(config.mongoURI, { useMongoClient: true }, err => {
 });
 
 const app = express();
-app.use(bodyParser.json({ limit: "50mb" }));
-app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 // routes
-app.use("/api/fakemed", FakeMedRoutes);
+app.use('/api/fakemed', FakeMedRoutes);
 
 // test route
-app.get("/test", (req, res) => {
-  res.status(200).send({ result: "GET: /test" });
+app.get('/test', (req, res) => {
+  res.status(200).send({ result: 'GET: /test' });
 });
 
 app.listen(config.port, () => {
